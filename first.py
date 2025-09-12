@@ -6,6 +6,7 @@ from gymnasium import spaces
 class CustomEnv(gym.Env):
     def __init__(self):
         super().__init__()
+        print("env initialized")
 
         # define action and obs spaces
         self.action_space = spaces.Discrete(4)  # 4 possible actions
@@ -43,3 +44,6 @@ class CustomEnv(gym.Env):
     def render(self, mode="human"):
         # TODO, implement visualization
         pass
+
+
+env = CustomEnv()
