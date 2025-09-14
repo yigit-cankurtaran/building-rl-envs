@@ -69,3 +69,24 @@ class GridWorldEnv(gym.Env):
             info = self._get_info()
 
             return obs, info
+
+        def step(self, action):
+            # action = what the agent does, 0-3 because action_to_direction
+
+            direction = self._action_to_direction[action]
+
+            # update agent position, ensuring it stays in grid
+            self._agent_location = np.clip(
+                self._agent_location + direction, 0, self.size - 1
+            )
+            terminated = np.array_equal(self._agent_location, self._target_location)
+
+            # TODO: add a step count for truncation here
+            truncated = False
+
+            reward = 1 if terminated else -0.01
+
+            obs = self._get_obs()
+            info = self._get_info()
+
+            return obs, info, terminated, truncated, reward
