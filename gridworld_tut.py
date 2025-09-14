@@ -48,3 +48,24 @@ class GridWorldEnv(gym.Env):
                     self._agent_location - self._target_location, ord=1
                 )
             }
+
+        def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
+            # need to first call reset from gym.Env
+            super.reset(seed=seed)
+
+            # place agent randomly
+            self._agent_location = self.np_random.integers(
+                0, self.size, size=2, dtype=int
+            )
+            self._target_location = self._agent_location
+
+            # move target away from agent
+            while np.array_equal(self._target_location, self._agent_location):
+                self._target_location = self.np_random.integers(
+                    0, self.size, size=2, dtype=int
+                )
+
+            obs = self._get_obs()
+            info = self._get_info()
+
+            return obs, info
