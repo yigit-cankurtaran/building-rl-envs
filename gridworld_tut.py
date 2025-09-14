@@ -6,8 +6,8 @@ import gymnasium as gym
 
 
 class GridWorldEnv(gym.Env):
-    def __init__(self, size: int = 5):
-        self.size = size  # 5x5 by default
+    def __init__(self, size: int = 9):
+        self.size = size  # 9x9 by default
 
         # init positions, (-1,-1) as uninitialized
         # _ before var name = these are private(internal)
@@ -28,14 +28,18 @@ class GridWorldEnv(gym.Env):
             }
         )
 
-        self.action_space = gym.spaces.Discrete(4)  # 4 actions
+        self.action_space = gym.spaces.Discrete(8)  # 8 actions (cardinal + diagonal)
 
         # map action nums to movements on grid
         self._action_to_direction = {
-            0: np.array([1, 0]),
-            1: np.array([0, 1]),
-            2: np.array([-1, 0]),
-            3: np.array([0, -1]),
+            0: np.array([1, 0]),  # move right
+            1: np.array([0, 1]),  # move up
+            2: np.array([-1, 0]),  # move left
+            3: np.array([0, -1]),  # move down
+            4: np.array([1, 1]),  # northeast
+            5: np.array([-1, 1]),  # northwest
+            6: np.array([1, -1]),  # southeast
+            7: np.array([-1, -1]),  # southwest
         }
 
         def _get_obs(self):
@@ -86,9 +90,10 @@ class GridWorldEnv(gym.Env):
             self._agent_location = np.clip(
                 self._agent_location + direction, 0, self.size - 1
             )
+
+            # win when agent gets to the target
             terminated = np.array_equal(self._agent_location, self._target_location)
 
-            # TODO: add a step count for truncation here
             truncated = self.current_step >= self.max_steps
 
             reward = 1 if terminated else -0.01
