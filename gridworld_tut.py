@@ -33,3 +33,18 @@ class GridWorldEnv(gym.Env):
             2: np.array([-1, 0]),
             3: np.array([0, -1]),
         }
+
+        def _get_obs(self):
+            """translate internal state to observation format
+            returns a dict with \"agent\" and \"target\" keys"""
+            return {"agent": self._agent_location, "target": self._target_location}
+
+        def _get_info(self):
+            """extra info for debugging
+            returns a dict with key \"distance\" with l1 distance between agent and input
+            """
+            return {
+                "distance": np.linalg.norm(
+                    self._agent_location - self._target_location, ord=1
+                )
+            }
