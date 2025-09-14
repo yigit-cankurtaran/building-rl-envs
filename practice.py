@@ -1,24 +1,24 @@
 import gymnasium as gym
 import numpy as np
-from gymnasium import spaces
 
 
 # placeholder for a visual RL task
 class CustomEnv(gym.Env):
-    def __init__(self, max_steps=1000):
+    def __init__(self):
         super().__init__()
+        print("env initialized")
 
-        # define action and obs spaces
+        from gymnasium import spaces
+        # define discrete action and continuous obs spaces
+
         self.action_space = spaces.Discrete(4)  # 4 possible actions
-        # 84x84 image with rgb channels
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(84, 84, 3), dtype=np.uint8
         )
 
         self.state = None
         self.steps = 0
-        self.max_steps = max_steps
-        print(f"env initialized with max steps of {max_steps}")
+        self.max_steps = 1000
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)  # calls reset from gym.Env, not itself
