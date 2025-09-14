@@ -14,6 +14,10 @@ class GridWorldEnv(gym.Env):
         self._agent_location = np.array([-1, -1], dtype=np.int32)
         self._target_location = np.array([-1, -1], dtype=np.int32)
 
+        # for truncation
+        self.max_steps = 100
+        self.current_step = 0
+
         # Dict space gives us structured, human readable observations
         self.observation_space = gym.spaces.Dict(
             {
@@ -53,6 +57,8 @@ class GridWorldEnv(gym.Env):
             # need to first call reset from gym.Env
             super.reset(seed=seed)
 
+            self.current_step = 0  # reset steps
+
             # place agent randomly
             self._agent_location = self.np_random.integers(
                 0, self.size, size=2, dtype=int
@@ -73,6 +79,7 @@ class GridWorldEnv(gym.Env):
         def step(self, action):
             # action = what the agent does, 0-3 because action_to_direction
 
+            self.current_step += 1
             direction = self._action_to_direction[action]
 
             # update agent position, ensuring it stays in grid
@@ -82,7 +89,7 @@ class GridWorldEnv(gym.Env):
             terminated = np.array_equal(self._agent_location, self._target_location)
 
             # TODO: add a step count for truncation here
-            truncated = False
+            truncated = self.current_step >= self.max_steps
 
             reward = 1 if terminated else -0.01
 
