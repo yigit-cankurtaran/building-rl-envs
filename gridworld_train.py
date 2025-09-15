@@ -7,9 +7,9 @@ from gridworld_tut import GridWorldEnv
 import os
 
 
-def train():
+def train(timesteps=1_000_000):
     train_env = make_vec_env(GridWorldEnv, n_envs=4)
-    eval_env = DummyVecEnv(GridWorldEnv)
+    eval_env = DummyVecEnv([lambda: GridWorldEnv])
     # train and eval envs declared
 
     os.makedirs("model", exist_ok=True)
@@ -26,6 +26,8 @@ def train():
         # going with the defaults for the rest
         # TODO: tune these according to the outputs we get
     )
+
+    model.learn(total_timesteps=timesteps, callback=eval_callback, progress_bar=True)
 
 
 if __name__ == "__main__":
