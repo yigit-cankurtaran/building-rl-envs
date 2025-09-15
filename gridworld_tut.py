@@ -42,63 +42,63 @@ class GridWorldEnv(gym.Env):
             7: np.array([-1, -1]),  # southwest
         }
 
-        def _get_obs(self):
-            """translate internal state to observation format
-            returns a dict with \"agent\" and \"target\" keys"""
-            return {"agent": self._agent_location, "target": self._target_location}
+    def _get_obs(self):
+        """translate internal state to observation format
+        returns a dict with \"agent\" and \"target\" keys"""
+        return {"agent": self._agent_location, "target": self._target_location}
 
-        def _get_info(self):
-            """extra info for debugging
-            returns a dict with key \"distance\" with l1 distance between agent and input
-            """
-            return {
-                "distance": np.linalg.norm(
-                    self._agent_location - self._target_location, ord=1
-                )
-            }
+    def _get_info(self):
+        """extra info for debugging
+        returns a dict with key \"distance\" with l1 distance between agent and input
+        """
+        return {
+            "distance": np.linalg.norm(
+                self._agent_location - self._target_location, ord=1
+            )
+        }
 
-        def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
-            # need to first call reset from gym.Env
-            super.reset(seed=seed)
+    def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
+        # need to first call reset from gym.Env
+        super().reset(seed=seed)
 
-            self.current_step = 0  # reset steps
+        self.current_step = 0  # reset steps
 
-            # place agent randomly
-            self._agent_location = self.np_random.integers(
+        # place agent randomly
+        self._agent_location = self.np_random.integers(
+            0, self.size, size=2, dtype=int
+        )
+        self._target_location = self._agent_location
+
+        # move target away from agent
+        while np.array_equal(self._target_location, self._agent_location):
+            self._target_location = self.np_random.integers(
                 0, self.size, size=2, dtype=int
             )
-            self._target_location = self._agent_location
 
-            # move target away from agent
-            while np.array_equal(self._target_location, self._agent_location):
-                self._target_location = self.np_random.integers(
-                    0, self.size, size=2, dtype=int
-                )
+        obs = self._get_obs()
+        info = self._get_info()
 
-            obs = self._get_obs()
-            info = self._get_info()
+        return obs, info
 
-            return obs, info
+    def step(self, action):
+        # action = what the agent does, 0-3 because action_to_direction
 
-        def step(self, action):
-            # action = what the agent does, 0-3 because action_to_direction
+        self.current_step += 1
+        direction = self._action_to_direction[action]
 
-            self.current_step += 1
-            direction = self._action_to_direction[action]
+        # update agent position, ensuring it stays in grid
+        self._agent_location = np.clip(
+            self._agent_location + direction, 0, self.size - 1
+        )
 
-            # update agent position, ensuring it stays in grid
-            self._agent_location = np.clip(
-                self._agent_location + direction, 0, self.size - 1
-            )
+        # win when agent gets to the target
+        terminated = np.array_equal(self._agent_location, self._target_location)
 
-            # win when agent gets to the target
-            terminated = np.array_equal(self._agent_location, self._target_location)
+        truncated = self.current_step >= self.max_steps
 
-            truncated = self.current_step >= self.max_steps
+        reward = 1 if terminated else -0.01
 
-            reward = 1 if terminated else -0.01
+        obs = self._get_obs()
+        info = self._get_info()
 
-            obs = self._get_obs()
-            info = self._get_info()
-
-            return obs, reward, terminated, truncated, info
+        return obs, reward, terminated, truncated, info
