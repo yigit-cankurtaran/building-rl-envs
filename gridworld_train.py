@@ -21,6 +21,12 @@ def train():
     # TODO: might need to ankify EvalCallback internals from previous training files
     eval_callback = EvalCallback(eval_env, log_path, best_model_save_path=model_path)
 
+    model = PPO(
+        env=train_env
+        # going with the defaults for the rest
+        # TODO: tune these according to the outputs we get
+    )
+
 
 if __name__ == "__main__":
     train()
