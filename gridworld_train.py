@@ -19,10 +19,13 @@ def train(timesteps=1_000_000):
     log_path = "./log"
 
     # TODO: might need to ankify EvalCallback internals from previous training files
-    eval_callback = EvalCallback(eval_env, best_model_save_path=model_path, log_path=log_path)
+    eval_callback = EvalCallback(
+        eval_env, best_model_save_path=model_path, log_path=log_path
+    )
 
     model = PPO(
-        env=train_env
+        policy="MultiInputPolicy",  # working with dict obs space, can't use MLP
+        env=train_env,
         # going with the defaults for the rest
         # TODO: tune these according to the outputs we get
     )
