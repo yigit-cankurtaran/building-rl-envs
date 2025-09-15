@@ -101,4 +101,4 @@ class GridWorldEnv(gym.Env):
             obs = self._get_obs()
             info = self._get_info()
 
-            return obs, info, terminated, truncated, reward
+            return obs, reward, terminated, truncated, info
