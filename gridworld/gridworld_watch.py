@@ -1,11 +1,13 @@
 from stable_baselines3 import PPO
 from stable_baselines3.common.evaluation import evaluate_policy
 from gridworld_tut import GridWorldEnv
+from stable_baselines3.common.monitor import Monitor
 
 
 def watch_trained_agent(ep_count=5):
     model = PPO.load("./model/best_model.zip")
     env = GridWorldEnv(render_mode="human")
+    env = Monitor(env)
     rewards, lengths = evaluate_policy(
         model, env, n_eval_episodes=ep_count, render=True, return_episode_rewards=True
     )

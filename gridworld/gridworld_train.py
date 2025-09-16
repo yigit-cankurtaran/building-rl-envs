@@ -9,7 +9,7 @@ import os
 
 def train(timesteps=200_000):
     train_env = make_vec_env(GridWorldEnv, n_envs=4)
-    eval_env = DummyVecEnv([lambda: GridWorldEnv()])
+    eval_env = DummyVecEnv([lambda: Monitor(GridWorldEnv())])
     # train and eval envs declared
 
     os.makedirs("model", exist_ok=True)
