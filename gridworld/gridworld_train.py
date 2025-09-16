@@ -27,7 +27,7 @@ def train(timesteps=200_000):
         policy="MultiInputPolicy",  # working with dict obs space, can't use MLP
         env=train_env,
         # going with the defaults for the rest
-        # TODO: tune these according to the outputs we get
+        # no need for tuning, model learns pretty fine
     )
 
     model.learn(total_timesteps=timesteps, callback=eval_callback, progress_bar=True)
