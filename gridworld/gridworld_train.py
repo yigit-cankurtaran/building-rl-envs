@@ -7,7 +7,7 @@ from gridworld_tut import GridWorldEnv
 import os
 
 
-def train(timesteps=1_000_000):
+def train(timesteps=200_000):
     train_env = make_vec_env(GridWorldEnv, n_envs=4)
     eval_env = DummyVecEnv([lambda: GridWorldEnv()])
     # train and eval envs declared
