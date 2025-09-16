@@ -115,9 +115,10 @@ class GridWorldEnv(gym.Env):
 
         mode (str): "human" prints to console, "rgb_array" returns numpy array, None does nothing
         """
-        if mode is None:
+        render_mode = mode or self.render_mode
+        if render_mode is None:
             return
-        elif mode == "human":
+        elif render_mode == "human":
             grid = np.full((self.size, self.size), ".", dtype=str)
 
             # target (T) and agent (A)
@@ -144,7 +145,7 @@ class GridWorldEnv(gym.Env):
                 f"Distance: {self._get_info()['distance']:.1f}, Step: {self.current_step}/{self.max_steps}"
             )
 
-        elif mode == "rgb_array":
+        elif render_mode == "rgb_array":
             # RGB array representation for programmatic use
             rgb_array = np.zeros((self.size, self.size, 3), dtype=np.uint8)
 
@@ -166,7 +167,7 @@ class GridWorldEnv(gym.Env):
             return rgb_array
 
         else:
-            raise ValueError(f"Unsupported render mode: {mode}")
+            raise ValueError(f"Unsupported render mode: {render_mode}")
 
     def close(self):
         """clean up rendering resources if needed
