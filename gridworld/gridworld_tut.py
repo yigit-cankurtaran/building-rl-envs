@@ -6,6 +6,14 @@ import gymnasium as gym
 
 
 class GridWorldEnv(gym.Env):
+    # Rendering constants
+    COLORS = {
+        "white": [255, 255, 255],
+        "red": [255, 0, 0],
+        "blue": [0, 0, 255],
+        "green": [0, 255, 0],
+    }
+
     def __init__(self, size: int = 9, render_mode=None):
         """initializing env
         args: size = length of edges of the square grid"""
@@ -20,6 +28,9 @@ class GridWorldEnv(gym.Env):
         # for truncation
         self.max_steps = 100
         self.current_step = 0
+
+        # Pre-allocated grid for performance
+        self._grid = np.full((self.size, self.size), ".", dtype=str)
 
         # Dict space gives us structured, human readable observations
         self.observation_space = gym.spaces.Dict(
@@ -110,6 +121,21 @@ class GridWorldEnv(gym.Env):
 
         return obs, reward, terminated, truncated, info
 
+    def _world_to_grid_coords(self, world_pos):
+        """Convert world coordinates (x, y) to grid coordinates (row, col)
+
+        Args:
+            world_pos: numpy array [x, y] in world coordinates
+
+        Returns:
+            tuple: (row, col) for grid indexing
+        """
+        if not (0 <= world_pos[0] < self.size and 0 <= world_pos[1] < self.size):
+            raise ValueError(
+                f"Position {world_pos} is out of bounds for grid size {self.size}"
+            )
+        return world_pos[1], world_pos[0]  # (row, col) = (y, x)
+
     def render(self, mode=None):
         """render the gridworld environment
 
@@ -119,23 +145,22 @@ class GridWorldEnv(gym.Env):
         if render_mode is None:
             return
         elif render_mode == "human":
-            grid = np.full((self.size, self.size), ".", dtype=str)
+            # empty grid
+            self._grid.fill(".")
 
-            # target (T) and agent (A)
-            # numpy arrays use (row, col) but our coordinates are (x, y)
-            # flip coordinates when indexing grid
-            target_row, target_col = self._target_location[1], self._target_location[0]
-            agent_row, agent_col = self._agent_location[1], self._agent_location[0]
+            # coordinate conversion
+            target_row, target_col = self._world_to_grid_coords(self._target_location)
+            agent_row, agent_col = self._world_to_grid_coords(self._agent_location)
 
-            grid[target_row, target_col] = "T"
-            grid[agent_row, agent_col] = "A"
+            self._grid[target_row, target_col] = "T"
+            self._grid[agent_row, agent_col] = "A"
 
             if np.array_equal(self._agent_location, self._target_location):
-                grid[agent_row, agent_col] = "W"  # W for win
+                self._grid[agent_row, agent_col] = "W"  # W for win
 
             # print grid
             print("\n" + "─" * (self.size * 2 + 1))
-            for row in grid:
+            for row in self._grid:
                 print("│" + " ".join(row) + "│")
             print("─" * (self.size * 2 + 1))
 
@@ -150,19 +175,21 @@ class GridWorldEnv(gym.Env):
             rgb_array = np.zeros((self.size, self.size, 3), dtype=np.uint8)
 
             # white background
-            rgb_array.fill(255)
+            rgb_array[:] = self.COLORS["white"]
+
+            # convert coords
+            target_row, target_col = self._world_to_grid_coords(self._target_location)
+            agent_row, agent_col = self._world_to_grid_coords(self._agent_location)
 
             # target loc in red
-            target_row, target_col = self._target_location[1], self._target_location[0]
-            rgb_array[target_row, target_col] = [255, 0, 0]  # red
+            rgb_array[target_row, target_col] = self.COLORS["red"]
 
             # agent loc blue
-            agent_row, agent_col = self._agent_location[1], self._agent_location[0]
-            rgb_array[agent_row, agent_col] = [0, 0, 255]  # blue
+            rgb_array[agent_row, agent_col] = self.COLORS["blue"]
 
             # if agent reaches target, make it green
             if np.array_equal(self._agent_location, self._target_location):
-                rgb_array[agent_row, agent_col] = [0, 255, 0]  # green
+                rgb_array[agent_row, agent_col] = self.COLORS["green"]
 
             return rgb_array
 
