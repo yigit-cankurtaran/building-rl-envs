@@ -1,6 +1,9 @@
 import gymnasium as gym
 import numpy as np
 
+"""file used to create anki cards for env code
+looking at functions and methods used to create envs with gymnasium.Env"""
+
 
 # placeholder for a visual RL task
 class CustomEnv(gym.Env):
